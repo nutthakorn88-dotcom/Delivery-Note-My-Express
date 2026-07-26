@@ -1,0 +1,2284 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบสร้างใบปะหน้าพัสดุ (100mm x 75mm) - Fixed Pro</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Itim&family=Kanit:wght@400;700&family=Mali:wght@500;700&family=Mitr:wght@400;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --accent: #6366f1;
+            --accent-dark: #4338ca;
+            --accent-soft: #eef2ff;
+            --ink: #1e293b;
+            --muted: #64748b;
+            --line: #e2e8f0;
+            --bg: #f4f6fb;
+            --card: #ffffff;
+            --card-soft: #f8fafc;
+            --input-bg: #fbfcfe;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow: 0 1px 3px rgba(15,23,42,0.06), 0 8px 24px rgba(15,23,42,0.06);
+        }
+        [data-theme="dark"] {
+            --accent: #818cf8;
+            --accent-dark: #6366f1;
+            --accent-soft: #312e81;
+            --ink: #e2e8f0;
+            --muted: #94a3b8;
+            --line: #334155;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --card-soft: #172033;
+            --input-bg: #172033;
+            --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+        }
+        body, .control-panel, .storage-box, select, input[type="text"], .editor-input,
+        .layer-row, .btn-storage, .modal-box {
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+        }
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1.5px solid var(--line);
+            background: var(--card);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+        }
+        .help-toggle {
+            position: fixed;
+            top: 20px;
+            right: 74px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1.5px solid var(--line);
+            background: var(--card);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+        }
+        .lock-toggle {
+            position: fixed;
+            top: 20px;
+            right: 128px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1.5px solid var(--line);
+            background: var(--card);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+        }
+        .lock-toggle.locked { background: #fee2e2; border-color: #fca5a5; }
+        .changepin-toggle {
+            position: fixed;
+            top: 20px;
+            right: 182px;
+            height: 44px;
+            padding: 0 14px;
+            border-radius: 22px;
+            border: 1.5px solid var(--line);
+            background: var(--card);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--ink);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+        }
+        .history-toggle {
+            position: fixed;
+            top: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1.5px solid var(--line);
+            background: var(--card);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+        }
+        .history-toggle:disabled { opacity: 0.35; cursor: not-allowed; }
+        #btnUndo { left: 20px; }
+        #btnRedo { left: 74px; }
+        @media (max-width: 850px) {
+            .changepin-toggle { display: none !important; }
+        }
+
+        [data-theme="dark"] .preview-sidebar {
+            background: linear-gradient(180deg, #1a2338, #141c2e);
+            border-color: #334155;
+        }
+        [data-theme="dark"] .toolbar-row {
+            background: var(--card-soft) !important;
+            border-color: var(--line) !important;
+        }
+        [data-theme="dark"] .toolbar-row span {
+            color: var(--muted) !important;
+        }
+        [data-theme="dark"] #btnLayerBehind,
+        [data-theme="dark"] #btnLayerFront {
+            background: var(--card) !important;
+            border-color: var(--line) !important;
+            color: var(--ink) !important;
+        }
+        [data-theme="dark"] .storage-box[style*="fffbeb"] {
+            background: #2b2410 !important;
+            border-color: #4d3f13 !important;
+        }
+        [data-theme="dark"] .storage-box[style*="fffbeb"] * {
+            color: #fbbf24 !important;
+        }
+        [data-theme="dark"] .storage-box[style*="fffbeb"] div[style*="fde68a"] {
+            background: var(--card) !important;
+            border-color: #715f1c !important;
+        }
+        [data-theme="dark"] #btnTriggerImage {
+            background: #4d3f13 !important;
+            color: #fbbf24 !important;
+            border-color: #715f1c !important;
+        }
+        [data-theme="dark"] #selectedImageLabel,
+        [data-theme="dark"] #imageControlSize > div:first-child {
+            background: var(--card) !important;
+            color: #fbbf24 !important;
+            border-color: #715f1c !important;
+        }
+        [data-theme="dark"] .layer-row {
+            background: var(--card);
+            border-color: #715f1c;
+        }
+        [data-theme="dark"] .layer-row:hover { background: var(--card-soft); }
+        [data-theme="dark"] .layer-name { color: var(--muted); }
+        [data-theme="dark"] .modal-box { background: var(--card); color: var(--ink); }
+        [data-theme="dark"] .modal-box h3 { color: var(--ink) !important; }
+        [data-theme="dark"] input[type="range"] { accent-color: var(--accent); }
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+
+        /* --- UI Styles --- */
+        body {
+            font-family: 'Sarabun', 'Mali', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 24px;
+            color: var(--ink);
+        }
+        h2, h3, h4 { font-family: 'Kanit', sans-serif; }
+
+        .container {
+            display: flex;
+            gap: 28px;
+            max-width: 1040px;
+            margin: 0 auto;
+            align-items: flex-start;
+        }
+
+        .control-panel {
+            background: var(--card);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            flex: 1;
+            min-width: 320px;
+            box-sizing: border-box;
+        }
+        .control-panel h2 {
+            font-size: 20px;
+            margin: 0 0 20px 0;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-sidebar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; 
+            position: sticky;
+            top: 20px;
+            background: linear-gradient(180deg, #eef1f8, #e7ebf5);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            border: 1.5px dashed #c7cee0;
+            box-sizing: border-box;
+        }
+        .print-tip {
+            margin-top: 14px;
+            font-size: 12.5px;
+            color: var(--muted);
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            padding: 10px 12px;
+            max-width: 100mm;
+            box-sizing: border-box;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-inline {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--ink);
+            font-size: 14px;
+        }
+        
+        .editor-input {
+            width: 100%;
+            height: 140px;
+            padding: 12px;
+            border: 1.5px solid var(--line);
+            border-radius: var(--radius-md);
+            box-sizing: border-box;
+            font-size: 18px;
+            background: var(--input-bg);
+            color: var(--ink);
+            overflow-y: auto;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            display: flex;
+            flex-direction: column;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+        }
+        .editor-input:focus {
+            background: var(--card);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+        .editor-input.is-empty:before {
+            content: attr(placeholder);
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid var(--line);
+            border-radius: var(--radius-md);
+            box-sizing: border-box;
+            font-size: 15px;
+            background: var(--input-bg);
+            color: var(--ink);
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+        
+        .toolbar-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .toolbar-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .toolbar {
+            display: flex;
+            gap: 5px;
+        }
+        .btn-tool {
+            background: var(--card-soft);
+            border: 1.5px solid var(--line);
+            padding: 7px 11px;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+            min-width: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            color: var(--ink);
+        }
+        .btn-tool:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+            transform: translateY(-1px);
+        }
+        .btn-tool.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent-dark);
+        }
+        .btn-clear {
+            background: #fee2e2;
+            color: #ef4444;
+            border: 1.5px solid #fca5a5;
+        }
+        .btn-clear:hover {
+            background: #fca5a5;
+            color: #991b1b;
+        }
+
+        .storage-box {
+            background: var(--card-soft);
+            border: 1px solid var(--line);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 18px;
+        }
+        .storage-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .btn-storage {
+            flex: 1;
+            padding: 10px;
+            font-size: 13.5px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1.5px solid var(--line);
+            background: var(--card);
+            color: var(--ink);
+            transition: 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .btn-storage:hover {
+            background: #f1f5f9;
+            transform: translateY(-1px);
+        }
+        .btn-save-template {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        .btn-save-template:hover {
+            background: #059669;
+        }
+
+        .layer-list {
+            margin-top: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .layer-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            border: 1.5px solid #fde68a;
+            border-radius: 8px;
+            padding: 6px 8px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .layer-row:hover { background: #fffbeb; }
+        .layer-row.selected {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-soft);
+        }
+        .layer-thumb {
+            width: 30px;
+            height: 30px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid #e2e8f0;
+            flex-shrink: 0;
+            background: #f8fafc;
+        }
+        .layer-name {
+            flex: 1;
+            font-size: 12.5px;
+            color: #78350f;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .layer-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            color: #475569;
+            flex-shrink: 0;
+        }
+        .layer-actions {
+            display: flex;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+        .layer-actions button {
+            border: none;
+            background: #f1f5f9;
+            border-radius: 5px;
+            width: 22px;
+            height: 22px;
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .layer-actions button:hover { background: #e2e8f0; }
+        .layer-actions .layer-del:hover { background: #fca5a5; }
+        .layer-empty-hint {
+            font-size: 12px;
+            color: #b45309;
+            text-align: center;
+            padding: 8px 0;
+        }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        .range-container input[type="range"] {
+            flex: 1;
+        }
+        .btn-print {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 17px;
+            font-weight: 700;
+            font-family: 'Kanit', sans-serif;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.15s, box-shadow 0.15s;
+            margin-top: 12px;
+            box-shadow: 0 6px 16px rgba(99,102,241,0.35);
+        }
+        .btn-print:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(99,102,241,0.45);
+        }
+        .btn-print:active {
+            transform: translateY(0);
+        }
+
+        /* --- Preview Area (100mm x 75mm) --- */
+        .preview-container {
+            background: #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            margin-top: 10px;
+            width: 100mm;
+            height: 75mm;
+            overflow: hidden;
+            box-sizing: border-box; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #print-area {
+            width: calc(100mm - 4mm);
+            height: calc(75mm - 4mm);
+            box-sizing: border-box; 
+            padding: 12mm;
+            position: relative;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 4px solid #000000; 
+        }
+
+        .watermark-bg {
+            position: absolute;
+            top: -20%;
+            left: -20%;
+            width: 140%;
+            height: 140%;
+            transform: rotate(-30deg);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            opacity: 0.08;
+            pointer-events: none;
+            user-select: none;
+            z-index: 1;
+        }
+        .watermark-row {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            white-space: nowrap;
+            color: #000;
+        }
+
+        #images-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* ไม่ตั้ง z-index ตรงนี้โดยเจตนา: ถ้าใส่ z-index ให้เลเยอร์นี้ จะกลายเป็น
+               stacking context ใหม่ ทำให้รูปที่ตั้งค่า "อยู่หลังข้อความ" (z-index:2)
+               ยังคงลอยทับข้อความเสมอ เพราะเทียบกันเฉพาะภายในเลเยอร์นี้เท่านั้น
+               การปล่อยให้เป็น auto ทำให้ z-index ของรูปแต่ละรูป (2 หรือ 10) ไปเทียบชั้นกับ
+               ตัวอักษร (z-index:3) ได้จริงตามที่ผู้ใช้เลือก */
+            pointer-events: none; 
+        }
+
+        .content-box {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column; 
+            align-items: center;    
+            justify-content: center; 
+            text-align: center; 
+            white-space: pre-wrap;
+            overflow-wrap: anywhere; 
+            word-break: break-word;   
+            line-height: 1.4;
+            color: #000;
+            z-index: 3; 
+            box-sizing: border-box;
+            pointer-events: none; /* สำคัญ: กันไม่ให้กล่องข้อความ (เต็มพื้นที่เสมอ) ดักคลิกเมาส์
+                                     บังรูปภาพที่อยู่ชั้นล่างกว่า (behind) จนเลือก/ลากรูปไม่ได้ */
+            
+            font-family: 'Itim', sans-serif;
+            font-weight: normal;
+            font-style: normal;
+            text-decoration: none;
+        }
+
+        .image-wrapper {
+            position: absolute;
+            z-index: 10; 
+            cursor: move;
+            user-select: none;
+            border: 1.5px dashed transparent;
+            line-height: 0;
+            display: inline-block;
+            pointer-events: auto; 
+            transform-origin: 0 0;
+        }
+        
+        .image-wrapper .inserted-img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: none;
+        }
+
+        .image-wrapper.selected {
+            border: 1.5px dashed #0056b3;
+            box-shadow: 0 0 4px rgba(0, 86, 179, 0.4);
+        }
+
+        .image-wrapper .resize-handle {
+            display: none;
+            position: absolute;
+            width: 9px;
+            height: 9px;
+            background-color: #ffffff;
+            border: 1.5px solid #0056b3;
+            box-sizing: border-box;
+            z-index: 11;
+        }
+
+        .image-wrapper.selected .resize-handle {
+            display: block;
+        }
+
+        .image-wrapper .resize-handle.tl { top: -5px; left: -5px; cursor: nwse-resize; }
+        .image-wrapper .resize-handle.tc { top: -5px; left: calc(50% - 5px); cursor: ns-resize; }
+        .image-wrapper .resize-handle.tr { top: -5px; right: -5px; cursor: nesw-resize; }
+        .image-wrapper .resize-handle.ml { top: calc(50% - 5px); left: -5px; cursor: ew-resize; }
+        .image-wrapper .resize-handle.mr { top: calc(50% - 5px); right: -5px; cursor: ew-resize; }
+        .image-wrapper .resize-handle.bl { bottom: -5px; left: -5px; cursor: nesw-resize; }
+        .image-wrapper .resize-handle.bc { bottom: -5px; left: calc(50% - 5px); cursor: ns-resize; }
+        .image-wrapper .resize-handle.br { bottom: -5px; right: -5px; cursor: nwse-resize; }
+
+        .content-box b, .content-box strong { font-weight: bold; }
+        .content-box i, .content-box em { font-style: italic; }
+        .content-box u { text-decoration: underline; }
+
+        /* --- Preview Modal --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-box {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .btn-modal {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-modal-confirm {
+            background: var(--accent);
+            color: white;
+        }
+        .btn-modal-confirm:hover { background: var(--accent-dark); }
+        .btn-modal-cancel {
+            background: #e2e8f0;
+            color: #475569;
+        }
+        .btn-modal-cancel:hover { background: #cbd5e1; }
+
+        .modal-box .preview-container {
+            margin: 15px auto;
+            transform: scale(0.9);
+            transform-origin: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        #modal-print-area {
+            position: relative;
+            overflow: hidden;
+            background-color: #fff;
+            width: calc(100mm - 4mm);
+            height: calc(75mm - 4mm);
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #modal-images-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        @media (max-width: 850px) {
+            .container { flex-direction: column; }
+            .preview-sidebar { position: static; width: 100%; }
+        }
+
+        /* --- Print Mode Settings --- */
+        @media print {
+            @page { size: 100mm 75mm; margin: 0 !important; }
+            html, body {
+                margin: 0 !important; padding: 0 !important; background: #fff !important;
+                width: 100mm !important; height: 75mm !important; overflow: hidden !important;
+            }
+            body * { visibility: hidden; }
+            .container .preview-sidebar .preview-container {
+                visibility: visible; box-shadow: none !important; position: absolute !important;
+                left: 0 !important; top: 0 !important; width: 100mm !important; height: 75mm !important;
+                margin: 0 !important; padding: 0 !important; overflow: hidden !important;
+                display: flex !important; align-items: center !important; justify-content: center !important;
+            }
+            .container .preview-sidebar .preview-container #print-area, 
+            .container .preview-sidebar .preview-container #print-area * { visibility: visible; }
+            .container .preview-sidebar .preview-container #print-area {
+                width: calc(100mm - 4mm) !important; height: calc(75mm - 4mm) !important; box-sizing: border-box !important;
+            }
+            .resize-handle { display: none !important; }
+            .image-wrapper { border: none !important; box-shadow: none !important; }
+
+            /* --- รองรับการพิมพ์หลายใบ (quantity > 1) --- */
+            body.is-multi-print, html.is-multi-print {
+                width: auto !important; height: auto !important; overflow: visible !important;
+            }
+            body.is-multi-print .container { display: none !important; }
+            body.is-multi-print #printMultiWrap { visibility: visible !important; display: block !important; }
+            body.is-multi-print #printMultiWrap * { visibility: visible !important; }
+            body.is-multi-print #printMultiWrap .preview-container {
+                box-shadow: none !important; width: 100mm !important; height: 75mm !important;
+                margin: 0 !important; page-break-after: always; break-after: page;
+                page-break-inside: avoid; break-inside: avoid;
+            }
+            body.is-multi-print #printMultiWrap .preview-container:last-child {
+                page-break-after: auto; break-after: auto;
+            }
+        }
+        #printMultiWrap { display: none; }
+    </style>
+</head>
+<body>
+
+    <button type="button" id="btnTheme" class="theme-toggle" title="สลับโหมด กลางวัน/กลางคืน">🌙</button>
+    <button type="button" id="btnHelp" class="help-toggle" title="คู่มือการใช้งาน">?</button>
+    <button type="button" id="btnLock" class="lock-toggle" title="ล็อกการแก้ไข">🔓</button>
+    <button type="button" id="btnChangePin" class="changepin-toggle" title="เปลี่ยนรหัสล็อก">🔑 เปลี่ยนรหัส</button>
+    <button type="button" id="btnUndo" class="history-toggle" title="ย้อนกลับ (Ctrl+Z)">↩️</button>
+    <button type="button" id="btnRedo" class="history-toggle" title="ทำซ้ำ (Ctrl+Y)">↪️</button>
+
+    <div class="container">
+        <div class="control-panel">
+            <fieldset id="lockFieldset" style="border: none; padding: 0; margin: 0; min-width: 0;">
+            <h2>📦 ระบบสร้างใบปะหน้าพัสดุ <span style="font-size:13px; font-weight:normal; color:var(--muted);">(100mm × 75mm)</span></h2>
+            
+            <div class="storage-box">
+                <label for="templateName">💾 ชื่อรูปแบบสำหรับบันทึก:</label>
+                <input type="text" id="templateName" placeholder="เช่น ใบปะหน้าผลไม้ด่วน, ระวังแตก">
+                
+                <div class="storage-buttons">
+                    <button type="button" id="btnExportFile" class="btn-storage btn-save-template">💾 บันทึกเป็นไฟล์</button>
+                    <button type="button" id="btnTriggerLoad" class="btn-storage">📂 เลือกไฟล์เพื่อดูพรีวิว</button>
+                    <input type="file" id="fileInput" accept=".json">
+                </div>
+
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line);">
+                    <label style="font-size: 13px;">⚡ เทมเพลตด่วน (บันทึกไว้ในเครื่องนี้)</label>
+                    <div class="storage-buttons" style="margin-top: 6px;">
+                        <select id="localTemplateSelect" style="flex: 2;">
+                            <option value="">-- ยังไม่มีเทมเพลตด่วน --</option>
+                        </select>
+                        <button type="button" id="btnDeleteLocal" class="btn-storage btn-clear" style="flex: 0 0 44px;" title="ลบเทมเพลตด่วนนี้">🗑️</button>
+                    </div>
+                    <div class="storage-buttons" style="margin-top: 6px;">
+                        <button type="button" id="btnSaveLocal" class="btn-storage btn-save-template">⚡ บันทึกด่วนในเครื่องนี้</button>
+                        <button type="button" id="btnLoadLocal" class="btn-storage">📥 โหลดเทมเพลตด่วนนี้</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- กล่องจัดการรูปภาพประกอบ -->
+            <div class="storage-box" style="background: #fffbeb; border-color: #fef3c7;">
+                <label>🖼️ จัดการรูปภาพประกอบ: <span style="font-size: 12px; font-weight: normal; color: #b45309;">(คลิกลากที่รูป / ลากมุมเพื่อย่อขยาย)</span></label>
+                <div class="storage-buttons" style="margin-top: 5px;">
+                    <button type="button" id="btnTriggerImage" class="btn-storage" style="background: #fef3c7; color: #b45309; border-color: #fde68a;">➕ เพิ่มรูปภาพประกอบ</button>
+                    <button type="button" id="btnRemoveImage" class="btn-storage btn-clear" style="display: none;">🗑️ ลบรูปที่เลือก</button>
+                    <input type="file" id="imageInput" accept="image/*" multiple>
+                </div>
+
+                <div id="imageLayerList" class="layer-list"></div>
+                <div id="layerEmptyHint" class="layer-empty-hint">ยังไม่มีรูปภาพ กด "เพิ่มรูปภาพประกอบ" เพื่อเริ่มต้น</div>
+                
+                <div id="imageControlSize" style="margin-top: 10px; display: none;">
+                    <div style="background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #fde68a; margin-bottom: 8px; font-size: 13px; color: #9a3412;">
+                        กำลังปรับแต่ง: <span id="selectedImageLabel" style="font-weight: bold;">รูปภาพ</span>
+                    </div>
+
+                    <!-- แก้ไขปุ่มควบคุมลำดับ Layer ให้ทำงานสมบูรณ์ขึ้น -->
+                    <label style="font-size: 14px; font-weight: normal; color: #78350f;">ลำดับการซ้อนทับ (Layer):</label>
+                    <div class="storage-buttons" style="margin-top: 5px; margin-bottom: 12px;">
+                        <button type="button" id="btnLayerBehind" class="btn-storage" style="background: #fff; border-color: #cbd5e1;" title="ย้ายรูปภาพไปอยู่ด้านหลังตัวอักษร">🔽 อยู่หลังข้อความ</button>
+                        <button type="button" id="btnLayerFront" class="btn-storage active" style="background: #fff; border-color: #cbd5e1;" title="ดึงรูปภาพมาอยู่ด้านหน้าข้อความ">🔼 อยู่หน้าข้อความ</button>
+                    </div>
+                    
+                    <label style="font-size: 14px; font-weight: normal; color: #78350f;">ปรับขนาดความกว้างรูปภาพ:</label>
+                    <div class="range-container" style="margin-bottom: 10px;">
+                        <input type="range" id="imageSizeRange" min="20" max="400" value="80">
+                        <span id="imageSizeValue" style="min-width: 40px; text-align: right; color:#78350f; font-size:14px;">80px</span>
+                    </div>
+
+                    <label style="font-size: 14px; font-weight: normal; color: #78350f;">หมุนภาพ (องศา):</label>
+                    <div class="range-container" style="margin-bottom: 10px;">
+                        <input type="range" id="imageRotationRange" min="0" max="360" value="0">
+                        <span id="imageRotationValue" style="min-width: 40px; text-align: right; color:#78350f; font-size:14px;">0°</span>
+                    </div>
+                    
+                    <label style="font-size: 14px; font-weight: normal; color: #78350f;">ปรับความโปร่งใสรูปภาพ (Opacity):</label>
+                    <div class="range-container">
+                        <input type="range" id="imageOpacityRange" min="10" max="100" value="100">
+                        <span id="imageOpacityValue" style="min-width: 40px; text-align: right; color:#78350f; font-size:14px;">100%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="labelText">ข้อความที่ต้องการพิมพ์:</label>
+                <div class="toolbar-container">
+                    <div class="toolbar-row">
+                        <div class="toolbar">
+                            <button type="button" id="btnBold" class="btn-tool" title="ตัวหนา (Ctrl+B)"><b>B</b></button>
+                            <button type="button" id="btnItalic" class="btn-tool" style="font-style: italic;" title="ตัวเอียง (Ctrl+I)">I</button>
+                            <button type="button" id="btnUnderline" class="btn-tool" style="text-decoration: underline;" title="ขีดเส้นใต้ (Ctrl+U)">U</button>
+                        </div>
+                        <button type="button" id="btnClearText" class="btn-tool btn-clear" title="ล้างข้อความทั้งหมด">🗑️ ล้างข้อมูล</button>
+                    </div>
+                    
+                    <div class="toolbar-row" style="background: #f8fafc; padding: 6px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <div class="toolbar">
+                            <span style="font-size: 11px; align-self: center; color: #64748b; margin-right: 2px;">แนวนอน:</span>
+                            <button type="button" id="btnAlignLeft" class="btn-tool" title="จัดชิดซ้าย">⚎ ซ้าย</button>
+                            <button type="button" id="btnAlignCenter" class="btn-tool active" title="จัดกึ่งกลาง">☰ กลาง</button>
+                            <button type="button" id="btnAlignRight" class="btn-tool" title="จัดชิดขวา">⚏ ขวา</button>
+                        </div>
+                        <div class="toolbar">
+                            <span style="font-size: 11px; align-self: center; color: #64748b; margin-right: 2px;">แนวตั้ง:</span>
+                            <button type="button" id="btnAlignTop" class="btn-tool" title="จัดชิดขอบบน">⤒ บน</button>
+                            <button type="button" id="btnAlignMiddle" class="btn-tool active" title="จัดกึ่งกลางแนวตั้ง">⤓ กลาง</button>
+                            <button type="button" id="btnAlignBottom" class="btn-tool" title="จัดชิดขอบล่าง">⤓ ล่าง</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="labelText" class="editor-input" contenteditable="true" style="font-family: 'Itim', cursive; text-align: center;" placeholder="พิมพ์ข้อความที่นี่..."><br></div>
+            </div>
+
+            <div class="form-group">
+                <label for="fontSelect">เลือกรูปแบบตัวอักษร (Font):</label>
+                <select id="fontSelect">
+                    <option value="'Itim', cursive" selected>Itim (ตัวมนน่ารัก)</option>
+                    <option value="'Mali', sans-serif">Mali (ตัวเขียนธรรมชาติ)</option>
+                    <option value="'Kanit', sans-serif">Kanit (ทางการ ทันสมัย)</option>
+                    <option value="'Mitr', sans-serif">Mitr (ไม่มีหัว เรียบหรู)</option>
+                    <option value="'Sarabun', sans-serif">Sarabun (แบบแผน ราชการ)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>การปรับขนาดตัวอักษร:</label>
+                <div class="form-inline" style="margin-bottom: 8px;">
+                    <input type="radio" id="sizeAuto" name="sizeMode" value="auto" checked>
+                    <label for="sizeAuto" style="margin:0; font-weight:normal; cursor:pointer;">ปรับอัตโนมัติ (Auto-fit)</label>
+                    
+                    <input type="radio" id="sizeManual" name="sizeMode" value="manual">
+                    <label for="sizeManual" style="margin:0; font-weight:normal; cursor:pointer;">ปรับเอง (Manual)</label>
+                </div>
+                <div class="range-container">
+                    <input type="range" id="sizeRange" min="10" max="100" value="30" disabled>
+                    <span id="sizeValue" style="min-width: 40px; text-align: right; color:#666;">--</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="borderStyleSelect">รูปแบบและขนาดเส้นกรอบ:</label>
+                <div class="form-inline" style="margin-bottom: 8px;">
+                    <select id="borderStyleSelect" style="flex: 2;">
+                        <option value="solid" selected>Solid (เส้นทึบ)</option>
+                        <option value="dashed">Dashed (เส้นไข่ปลา)</option>
+                        <option value="dotted">Dotted (จุดไข่ปลา)</option>
+                        <option value="double">Double (เส้นคู่)</option>
+                        <option value="groove">Groove (เส้นร่องนูน)</option>
+                        <option value="ridge">Ridge (เส้นสันนูน)</option>
+                        <option value="none">None (ไม่ใส่กรอบ)</option>
+                    </select>
+                    <select id="borderWidthSelect" style="flex: 1;">
+                        <option value="2px">บาง (2px)</option>
+                        <option value="4px" selected>กลาง (4px)</option>
+                        <option value="8px">หนา (8px)</option>
+                        <option value="12px">หนามาก (12px)</option>
+                    </select>
+                </div>
+                <div class="form-inline">
+                    <div style="flex: 1;">
+                        <label style="font-size: 13px; font-weight: normal; color: var(--muted); margin-bottom: 4px;">สีกรอบ</label>
+                        <input type="color" id="borderColorInput" value="#000000" style="width: 100%; height: 40px; padding: 3px; border-radius: 8px; border: 2px solid var(--line); cursor: pointer;">
+                    </div>
+                    <div style="flex: 2;">
+                        <label style="font-size: 13px; font-weight: normal; color: var(--muted); margin-bottom: 4px;">ความมนของมุมกรอบ</label>
+                        <div class="range-container" style="margin-top: 0;">
+                            <input type="range" id="borderRadiusRange" min="0" max="40" value="0">
+                            <span id="borderRadiusValue" style="min-width: 40px; text-align: right; color:var(--muted);">0px</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="paddingRange">ระยะย่อหน้าขอบกระดาษด้านใน (Padding):</label>
+                <div class="range-container">
+                    <input type="range" id="paddingRange" min="4" max="25" value="12">
+                    <span id="paddingValue" style="min-width: 40px; text-align: right; color:#666;">12mm</span>
+                </div>
+            </div>
+            </fieldset>
+
+            <div id="lockNotice" style="display:none; font-size: 13px; color: #b91c1c; background:#fee2e2; border:1px solid #fca5a5; border-radius: var(--radius-md); padding: 10px 12px; margin-bottom: 10px; text-align:center;">
+                🔒 ล็อกการแก้ไขอยู่ — ปุ่มพิมพ์ยังใช้งานได้ตามปกติ กดไอคอนแม่กุญแจมุมบนขวาเพื่อปลดล็อกและแก้ไข
+            </div>
+
+            <div class="form-inline" style="margin-bottom: 8px;">
+                <label style="margin:0; flex-shrink:0; font-size: 13px;" for="printQtyInput">จำนวนที่พิมพ์:</label>
+                <input type="number" id="printQtyInput" value="1" min="1" max="50" style="width: 80px; flex: 0 0 80px;">
+                <span style="font-size: 12px; color: var(--muted);">ใบ (ต่อการกดพิมพ์ 1 ครั้ง)</span>
+            </div>
+            <button class="btn-print" onclick="printLabel()">🖨️ พิมพ์ใบปะหน้า</button>
+        </div>
+
+        <div class="preview-sidebar">
+            <h4 style="color:var(--muted); margin-top: 0; margin-bottom: 10px; font-weight: 600;">ตัวอย่างก่อนพิมพ์ (แนวนอน 100mm × 75mm)</h4>
+            <div class="preview-container">
+                <div id="print-area">
+                    <div class="watermark-bg">
+                        <div class="watermark-row"><span>ตันตันเอ็กซ์เพรส</span><span>ตันตันเอ็กซ์เพรส</span><span>ตันตันเอ็กซ์เพรส</span></div>
+                        <div class="watermark-row"><span>ตันตันเอ็กซ์เพรส</span><span>ตันตันเอ็กซ์เพรส</span><span>ตันตันเอ็กซ์เพรส</span></div>
+                        <div class="watermark-row"><span>ตันตันเอ็กซ์เพรส</span><span>ตันตันเอ็กซ์เพรส</span><span>ตันตันเอ็กซ์เพรส</span></div>
+                    </div>
+                    <div id="images-layer"></div>
+                    <div id="content" class="content-box">
+                        <div id="textInsideContent">กรุณาพิมพ์ข้อความ</div>
+                    </div>
+                </div>
+            </div>
+            <div class="print-tip">
+                💡 <b>ถ้าพิมพ์แล้วขนาด/สีไม่ตรงกับตัวอย่าง</b><br>
+                ในหน้าต่างพิมพ์ของเบราว์เซอร์ ให้ตั้งค่า: ขนาดกระดาษเป็น <b>100 x 75 mm</b> (หรือ Custom), มาตราส่วนเป็น <b>100% / Actual size</b> (ไม่ใช่ Fit to page), ระยะขอบ (Margins) เป็น <b>None</b>, และเปิด <b>Background graphics</b> เพื่อให้ลายน้ำและกรอบสีขึ้นครบ
+            </div>
+        </div>
+    </div>
+
+    <div id="printMultiWrap"></div>
+
+    <!-- --- Preview Modal Pop-up --- -->
+    <div id="previewModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-top: 0; color: #334155;">ตรวจเช็กรูปแบบไฟล์เทมเพลต</h3>
+            <p style="font-size: 14px; color: #64748b; margin-bottom: 10px;">นี่คือหน้าตาจากไฟล์ที่คุณเลือก:</p>
+            
+            <div class="preview-container">
+                <div id="modal-print-area" style="border: 4px solid #000;">
+                    <div id="modal-images-layer"></div>
+                    <div id="modal-content" class="content-box">
+                        <div id="modalTextInsideContent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" id="btnModalCancel" class="btn-modal btn-modal-cancel">ยกเลิก</button>
+                <button type="button" id="btnModalConfirm" class="btn-modal btn-modal-confirm">เปิดใช้งานรูปแบบนี้</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- --- Help Modal --- -->
+    <div id="helpModal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 560px; text-align: left; max-height: 80vh; overflow-y: auto;">
+            <h3 style="margin-top: 0;">📖 คู่มือการใช้งาน</h3>
+            <div style="font-size: 14px; line-height: 1.7; color: var(--ink);">
+                <p><b>✏️ ข้อความ</b><br>
+                พิมพ์ในกล่องข้อความ แล้วใช้ปุ่ม B / I / U หรือ Ctrl+B, Ctrl+I, Ctrl+U เพื่อจัดรูปแบบ ปรับแนวข้อความแนวนอน/แนวตั้งได้อิสระ</p>
+
+                <p><b>🔤 ฟอนต์และขนาด</b><br>
+                เลือก Auto-fit ให้ระบบปรับขนาดตัวอักษรพอดีกรอบให้อัตโนมัติ หรือเลือก Manual เพื่อกำหนดขนาดเอง</p>
+
+                <p><b>🖼️ รูปภาพ</b><br>
+                กด "เพิ่มรูปภาพประกอบ" เพื่ออัปโหลด แล้วลากที่ตัวรูปเพื่อย้ายตำแหน่ง ลากมุมเพื่อย่อ/ขยาย ปรับหมุนและความโปร่งใสได้จากแถบเลื่อน<br>
+                ใช้ <b>รายการรูปภาพ</b> ด้านล่างปุ่มเพิ่มรูป คลิกที่แถวเพื่อเลือกรูป (สะดวกกว่าคลิกบนพรีวิวเวลารูปซ้อนกันหลายชั้น) ปุ่ม ▲▼ ใช้เลื่อนลำดับซ้อนทับ ปุ่ม ✕ ลบรูปนั้น</p>
+
+                <p><b>🔲 กรอบ</b><br>
+                เลือกลาย สี ความหนา และความมนของมุมกรอบได้ตามต้องการ</p>
+
+                <p><b>💾 บันทึก/โหลดรูปแบบ</b><br>
+                ตั้งชื่อแล้วกด "บันทึกเป็นไฟล์" จะได้ไฟล์ .json เก็บไว้ใช้ซ้ำ กด "เลือกไฟล์เพื่อดูพรีวิว" เพื่อโหลดกลับมา ระบบจะแสดงตัวอย่างให้ตรวจก่อนเปิดใช้งานจริง</p>
+
+                <p><b>🖨️ การพิมพ์</b><br>
+                กด "พิมพ์ใบปะหน้า" แล้วในหน้าต่างพิมพ์ของเบราว์เซอร์ ตั้งค่า: ขนาดกระดาษ 100x75mm, มาตราส่วน 100%/Actual size, Margins เป็น None และเปิด Background graphics เพื่อให้สี/ลายน้ำขึ้นครบ</p>
+
+                <p><b>🌙 โหมดกลางวัน/กลางคืน</b><br>
+                กดไอคอนพระจันทร์/พระอาทิตย์มุมบนขวา เปลี่ยนเฉพาะหน้าตาโปรแกรม ไม่กระทบสีของป้ายที่จะพิมพ์ออกมา</p>
+
+                <p><b>🔒 ล็อกการแก้ไข</b><br>
+                กดไอคอนแม่กุญแจเพื่อตั้งรหัสและล็อกไม่ให้แก้ไขการตั้งค่าโดยไม่ตั้งใจ (เช่น เผื่อพนักงานคนอื่นใช้เครื่องต่อ) ปุ่มพิมพ์ยังใช้งานได้ตามปกติแม้ล็อกอยู่ กดไอคอนอีกครั้งแล้วใส่รหัสเพื่อปลดล็อก<br>
+                <span style="color: var(--muted); font-size: 12.5px;">⚠️ หมายเหตุ: การล็อกนี้เป็นเพียงการกันแก้ไขโดยไม่ตั้งใจในหน้าเว็บเท่านั้น ไม่ใช่การเข้ารหัสความปลอดภัยระดับสูง เนื่องจากไฟล์นี้รันอยู่ในเบราว์เซอร์ของผู้ใช้เอง</span></p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="btnHelpClose" class="btn-modal btn-modal-confirm" style="flex:1;">เข้าใจแล้ว</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- --- Lock PIN Modal --- -->
+    <div id="lockModal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 360px;">
+            <h3 id="lockModalTitle" style="margin-top: 0;">🔒 ตั้งรหัสล็อก</h3>
+            <p id="lockModalDesc" style="font-size: 13.5px; color: var(--muted); margin-bottom: 10px;">ตั้งรหัส 4 หลักขึ้นไปเพื่อป้องกันการแก้ไขโดยไม่ตั้งใจ</p>
+            <input type="password" id="lockPinInput" inputmode="numeric" placeholder="รหัสผ่าน" style="text-align:center; font-size:20px; letter-spacing: 4px;">
+            <div id="lockPinError" style="display:none; color:#ef4444; font-size:13px; margin-top:8px;">รหัสไม่ถูกต้อง ลองอีกครั้ง</div>
+            <div class="modal-actions">
+                <button type="button" id="btnLockModalCancel" class="btn-modal btn-modal-cancel">ยกเลิก</button>
+                <button type="button" id="btnLockModalConfirm" class="btn-modal btn-modal-confirm">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const textInput = document.getElementById('labelText');
+        const printQtyInput = document.getElementById('printQtyInput');
+        const printMultiWrap = document.getElementById('printMultiWrap');
+        const localTemplateSelect = document.getElementById('localTemplateSelect');
+        const btnSaveLocal = document.getElementById('btnSaveLocal');
+        const btnLoadLocal = document.getElementById('btnLoadLocal');
+        const btnDeleteLocal = document.getElementById('btnDeleteLocal');
+        const fontSelect = document.getElementById('fontSelect');
+        const printArea = document.getElementById('print-area');
+        const contentDiv = document.getElementById('content');
+        const textInsideContent = document.getElementById('textInsideContent');
+        const imagesLayer = document.getElementById('images-layer');
+        
+        const sizeAuto = document.getElementById('sizeAuto');
+        const sizeManual = document.getElementById('sizeManual');
+        const sizeRange = document.getElementById('sizeRange');
+        const sizeValue = document.getElementById('sizeValue');
+
+        const borderStyleSelect = document.getElementById('borderStyleSelect');
+        const borderWidthSelect = document.getElementById('borderWidthSelect');
+        const borderColorInput = document.getElementById('borderColorInput');
+        const borderRadiusRange = document.getElementById('borderRadiusRange');
+        const borderRadiusValue = document.getElementById('borderRadiusValue');
+        const paddingRange = document.getElementById('paddingRange');
+        const paddingValue = document.getElementById('paddingValue');
+
+        const btnBold = document.getElementById('btnBold');
+        const btnItalic = document.getElementById('btnItalic');
+        const btnUnderline = document.getElementById('btnUnderline');
+
+        const btnAlignLeft = document.getElementById('btnAlignLeft');
+        const btnAlignCenter = document.getElementById('btnAlignCenter');
+        const btnAlignRight = document.getElementById('btnAlignRight');
+        const btnAlignTop = document.getElementById('btnAlignTop');
+        const btnAlignMiddle = document.getElementById('btnAlignMiddle');
+        const btnAlignBottom = document.getElementById('btnAlignBottom');
+        
+        const btnClearText = document.getElementById('btnClearText');
+
+        const btnTriggerImage = document.getElementById('btnTriggerImage');
+        const btnRemoveImage = document.getElementById('btnRemoveImage');
+        const imageInput = document.getElementById('imageInput');
+        const imageControlSize = document.getElementById('imageControlSize');
+        const imageSizeRange = document.getElementById('imageSizeRange');
+        const imageSizeValue = document.getElementById('imageSizeValue');
+        const imageRotationRange = document.getElementById('imageRotationRange');
+        const imageRotationValue = document.getElementById('imageRotationValue');
+        const imageOpacityRange = document.getElementById('imageOpacityRange');
+        const imageOpacityValue = document.getElementById('imageOpacityValue');
+        const selectedImageLabel = document.getElementById('selectedImageLabel');
+        
+        const btnLayerBehind = document.getElementById('btnLayerBehind');
+        const btnLayerFront = document.getElementById('btnLayerFront');
+        const imageLayerList = document.getElementById('imageLayerList');
+        const layerEmptyHint = document.getElementById('layerEmptyHint');
+
+        let imageList = []; 
+        let selectedImgId = null; 
+
+        const templateNameInput = document.getElementById('templateName');
+        const btnExportFile = document.getElementById('btnExportFile');
+        const btnTriggerLoad = document.getElementById('btnTriggerLoad');
+        const fileInput = document.getElementById('fileInput');
+
+        const previewModal = document.getElementById('previewModal');
+        const modalPrintArea = document.getElementById('modal-print-area');
+        const modalContent = document.getElementById('modal-content');
+        const modalTextInsideContent = document.getElementById('modalTextInsideContent');
+        const modalImagesLayer = document.getElementById('modal-images-layer');
+        const btnModalConfirm = document.getElementById('btnModalConfirm');
+        const btnModalCancel = document.getElementById('btnModalCancel');
+
+        let currentAlignmentX = 'center';
+        let currentAlignmentY = 'center';
+        let pendingTemplateData = null; 
+
+        function updateTextDisplay() {
+            let htmlContent = textInput.innerHTML;
+            let textPure = textInput.innerText.replace(/\n/g, '').trim();
+            textInput.classList.toggle('is-empty', textPure === "");
+            
+            textInput.style.fontFamily = fontSelect.value;
+
+            if (textPure === "" || htmlContent === "<br>") {
+                textInsideContent.innerHTML = "กรุณาพิมพ์ข้อความ";
+            } else {
+                textInsideContent.innerHTML = htmlContent;
+            }
+
+            contentDiv.style.fontFamily = fontSelect.value;
+
+            if (sizeAuto.checked) {
+                sizeRange.disabled = true;
+                sizeValue.innerText = "Auto";
+                autoFitText(printArea, contentDiv);
+            } else {
+                sizeRange.disabled = false;
+                let currentSize = sizeRange.value;
+                sizeValue.innerText = currentSize + 'px';
+                contentDiv.style.fontSize = currentSize + 'px';
+            }
+            updateToolbarActiveStates();
+        }
+
+        function autoFitText(container, contentElement) {
+            let low = 10;
+            let high = 100;
+            let optimalSize = low;
+
+            const maxWidth = container.clientWidth - (parseFloat(getComputedStyle(container).paddingLeft) * 2);
+            const maxHeight = container.clientHeight - (parseFloat(getComputedStyle(container).paddingTop) * 2);
+
+            while (low <= high) {
+                let mid = Math.floor((low + high) / 2);
+                contentElement.style.fontSize = mid + 'px';
+
+                if (contentElement.scrollHeight <= maxHeight && contentElement.scrollWidth <= maxWidth) {
+                    optimalSize = mid;
+                    low = mid + 1; 
+                } else {
+                    high = mid - 1; 
+                }
+            }
+
+            contentElement.style.fontSize = optimalSize + 'px';
+            if (container === printArea) {
+                sizeRange.value = optimalSize;
+            }
+            return optimalSize;
+        }
+
+        function updateBorderSettings() {
+            printArea.style.borderStyle = borderStyleSelect.value;
+            printArea.style.borderWidth = borderWidthSelect.value;
+            printArea.style.borderColor = borderColorInput.value;
+            printArea.style.borderRadius = borderRadiusRange.value + 'px';
+            borderRadiusValue.innerText = borderRadiusRange.value + 'px';
+            updateTextDisplay(); 
+        }
+
+        function updatePaddingSettings() {
+            let paddingVal = paddingRange.value;
+            paddingValue.innerText = paddingVal + 'mm';
+            printArea.style.padding = paddingVal + 'mm';
+            updateTextDisplay();
+        }
+
+        function setAlignmentX(alignType, targetInput = textInput, targetContent = contentDiv) {
+            if (targetInput === textInput) {
+                currentAlignmentX = alignType;
+                btnAlignLeft.classList.remove('active');
+                btnAlignCenter.classList.remove('active');
+                btnAlignRight.classList.remove('active');
+
+                if (alignType === 'left') btnAlignLeft.classList.add('active');
+                if (alignType === 'center') btnAlignCenter.classList.add('active');
+                if (alignType === 'right') btnAlignRight.classList.add('active');
+            }
+
+            const xValues = { left: 'left', center: 'center', right: 'right' };
+            targetInput.style.textAlign = xValues[alignType] || 'center';
+            targetContent.style.textAlign = xValues[alignType] || 'center';
+            
+            applyFlexAlignment(targetInput, targetContent);
+        }
+
+        function setAlignmentY(alignType, targetInput = textInput, targetContent = contentDiv) {
+            if (targetInput === textInput) {
+                currentAlignmentY = alignType;
+                btnAlignTop.classList.remove('active');
+                btnAlignMiddle.classList.remove('active');
+                btnAlignBottom.classList.remove('active');
+
+                if (alignType === 'top') btnAlignTop.classList.add('active');
+                if (alignType === 'middle') btnAlignMiddle.classList.add('active');
+                if (alignType === 'bottom') btnAlignBottom.classList.add('active');
+            }
+            
+            applyFlexAlignment(targetInput, targetContent);
+        }
+
+        function applyFlexAlignment(targetInput, targetContent) {
+            const inputX = targetInput === textInput ? currentAlignmentX : 'center';
+            const inputY = targetInput === textInput ? currentAlignmentY : 'center';
+            
+            const flexX = { left: 'flex-start', center: 'center', right: 'flex-end' };
+            const flexY = { top: 'flex-start', middle: 'center', bottom: 'flex-end' };
+
+            targetInput.style.justifyContent = flexY[inputY] || 'center';
+            targetInput.style.alignItems = flexX[inputX] || 'center';
+
+            targetContent.style.justifyContent = flexY[inputY] || 'center';
+            targetContent.style.alignItems = flexX[inputX] || 'center';
+        }
+
+        function updateToolbarActiveStates() {
+            btnBold.classList.toggle('active', document.queryCommandState('bold'));
+            btnItalic.classList.toggle('active', document.queryCommandState('italic'));
+            btnUnderline.classList.toggle('active', document.queryCommandState('underline'));
+        }
+
+        function formatText(command) {
+            document.execCommand(command, false, null);
+            updateTextDisplay();
+            textInput.focus();
+        }
+
+        btnTriggerImage.addEventListener('click', () => imageInput.click());
+
+        // แปลงรูปให้มีขนาดไม่ใหญ่เกินไป ก่อนเก็บเป็น base64 ในเทมเพลต (กันไฟล์ .json บวมจากรูปกล้อง/มือถือความละเอียดสูง)
+        function compressImageDataUrl(rawDataUrl, originalType) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const MAX_DIM = 1200;
+                    let w = img.naturalWidth;
+                    let h = img.naturalHeight;
+                    if (w > MAX_DIM || h > MAX_DIM) {
+                        const ratio = Math.min(MAX_DIM / w, MAX_DIM / h);
+                        w = Math.round(w * ratio);
+                        h = Math.round(h * ratio);
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+
+                    // เก็บ PNG ไว้ถ้าต้นฉบับเป็น PNG (รองรับพื้นหลังโปร่งใส เช่น โลโก้)
+                    // ไฟล์อื่นๆ (ภาพถ่าย) บีบอัดเป็น JPEG คุณภาพสูงเพื่อลดขนาด
+                    if (originalType === 'image/png' || originalType === 'image/gif') {
+                        resolve(canvas.toDataURL('image/png'));
+                    } else {
+                        resolve(canvas.toDataURL('image/jpeg', 0.85));
+                    }
+                };
+                img.onerror = () => resolve(rawDataUrl); // แปลงไม่สำเร็จ ใช้ต้นฉบับแทน
+                img.src = rawDataUrl;
+            });
+        }
+
+        imageInput.addEventListener('change', (e) => {
+            const files = e.target.files;
+            if (!files.length) return;
+
+            Array.from(files).forEach((file) => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    compressImageDataUrl(event.target.result, file.type).then((finalDataUrl) => {
+                        const imgId = 'img_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+                        const newImgObj = {
+                            id: imgId,
+                            name: file.name,
+                            base64: finalDataUrl,
+                            width: 100, 
+                            height: 100,
+                            opacity: 100,
+                            angle: 0,
+                            leftPercent: 40,
+                            topPercent: 40,
+                            layerPosition: 'front' 
+                        };
+                        imageList.push(newImgObj);
+                        renderImages();
+                        selectImage(imgId);
+                        pushHistory();
+                    });
+                };
+                reader.readAsDataURL(file);
+            });
+            imageInput.value = ""; 
+        });
+
+        function renderImages() {
+            imagesLayer.innerHTML = "";
+            imageList.forEach((imgObj) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'image-wrapper' + (selectedImgId === imgObj.id ? ' selected' : '');
+                wrapper.id = 'wrap_' + imgObj.id;
+                wrapper.style.width = imgObj.width + 'px';
+                wrapper.style.height = imgObj.height + 'px';
+                wrapper.style.left = imgObj.leftPercent + '%';
+                wrapper.style.top = imgObj.topPercent + '%';
+                
+                if (imgObj.layerPosition === 'behind') {
+                    wrapper.style.zIndex = "2"; 
+                } else {
+                    wrapper.style.zIndex = "10"; 
+                }
+                
+                const currentAngle = imgObj.angle || 0;
+                wrapper.style.transform = `rotate(${currentAngle}deg)`;
+
+                const imgEl = document.createElement('img');
+                imgEl.src = imgObj.base64;
+                imgEl.className = 'inserted-img';
+                imgEl.style.opacity = imgObj.opacity / 100;
+                wrapper.appendChild(imgEl);
+
+                const handles = ['tl', 'tc', 'tr', 'ml', 'mr', 'bl', 'bc', 'br'];
+                handles.forEach(type => {
+                    const handle = document.createElement('div');
+                    handle.className = `resize-handle ${type}`;
+                    wrapper.appendChild(handle);
+
+                    handle.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        selectImage(imgObj.id);
+                        initResizePro(e, imgObj.id, type);
+                    });
+                });
+                
+                wrapper.addEventListener('mousedown', function(e) {
+                    if (e.target.classList.contains('resize-handle')) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    selectImage(imgObj.id); 
+                    initDrag(e, imgObj.id, this); // แก้ไข Bug: ส่ง object ตัวเอง (this) เข้าไปทำงานแทนตัวแปรลูป
+                });
+                
+                imagesLayer.appendChild(wrapper);
+            });
+            renderLayerList();
+        }
+
+        function renderLayerList() {
+            imageLayerList.innerHTML = "";
+            layerEmptyHint.style.display = imageList.length ? "none" : "block";
+
+            // แสดงรายการจากบนสุด (ท้ายอาเรย์ = อยู่บนสุดของสแต็ก) ลงไปล่างสุด ให้ตรงกับสายตาผู้ใช้
+            for (let i = imageList.length - 1; i >= 0; i--) {
+                const imgObj = imageList[i];
+                const row = document.createElement('div');
+                row.className = 'layer-row' + (selectedImgId === imgObj.id ? ' selected' : '');
+
+                const thumb = document.createElement('img');
+                thumb.className = 'layer-thumb';
+                thumb.src = imgObj.base64;
+                row.appendChild(thumb);
+
+                const nameEl = document.createElement('div');
+                nameEl.className = 'layer-name';
+                nameEl.innerText = imgObj.name;
+                row.appendChild(nameEl);
+
+                const badge = document.createElement('span');
+                badge.className = 'layer-badge';
+                badge.innerText = imgObj.layerPosition === 'behind' ? 'หลังข้อความ' : 'หน้าข้อความ';
+                row.appendChild(badge);
+
+                const actions = document.createElement('div');
+                actions.className = 'layer-actions';
+
+                const upBtn = document.createElement('button');
+                upBtn.type = 'button';
+                upBtn.title = 'เลื่อนขึ้น (มาอยู่บนกว่า)';
+                upBtn.innerText = '▲';
+                upBtn.addEventListener('click', (e) => { e.stopPropagation(); moveLayer(imgObj.id, 1); });
+                actions.appendChild(upBtn);
+
+                const downBtn = document.createElement('button');
+                downBtn.type = 'button';
+                downBtn.title = 'เลื่อนลง (ไปอยู่ล่างกว่า)';
+                downBtn.innerText = '▼';
+                downBtn.addEventListener('click', (e) => { e.stopPropagation(); moveLayer(imgObj.id, -1); });
+                actions.appendChild(downBtn);
+
+                const delBtn = document.createElement('button');
+                delBtn.type = 'button';
+                delBtn.className = 'layer-del';
+                delBtn.title = 'ลบรูปนี้';
+                delBtn.innerText = '✕';
+                delBtn.addEventListener('click', (e) => { e.stopPropagation(); removeImageById(imgObj.id); });
+                actions.appendChild(delBtn);
+
+                row.appendChild(actions);
+
+                row.addEventListener('click', () => selectImage(imgObj.id));
+
+                imageLayerList.appendChild(row);
+            }
+        }
+
+        function moveLayer(id, direction) {
+            const idx = imageList.findIndex(img => img.id === id);
+            if (idx === -1) return;
+            const newIdx = idx + direction;
+            if (newIdx < 0 || newIdx >= imageList.length) return;
+            const temp = imageList[idx];
+            imageList[idx] = imageList[newIdx];
+            imageList[newIdx] = temp;
+            renderImages();
+            selectImage(id);
+            pushHistory();
+        }
+
+        function removeImageById(id) {
+            imageList = imageList.filter(img => img.id !== id);
+            if (selectedImgId === id) selectedImgId = null;
+            renderImages();
+            selectImage(selectedImgId);
+            updateTextDisplay();
+            pushHistory();
+        }
+
+        function selectImage(id) {
+            selectedImgId = id;
+            const activeImg = imageList.find(img => img.id === id);
+            
+            document.querySelectorAll('.image-wrapper').forEach(el => {
+                el.classList.toggle('selected', el.id === 'wrap_' + id);
+            });
+
+            if (activeImg) {
+                selectedImageLabel.innerText = activeImg.name.length > 20 ? activeImg.name.substring(0,20) + '...' : activeImg.name;
+                imageSizeRange.value = activeImg.width;
+                imageSizeValue.innerText = activeImg.width + "px";
+                imageRotationRange.value = activeImg.angle || 0;
+                imageRotationValue.innerText = (activeImg.angle || 0) + "°";
+                imageOpacityRange.value = activeImg.opacity;
+                imageOpacityValue.innerText = activeImg.opacity + "%";
+                
+                btnLayerBehind.classList.toggle('active', activeImg.layerPosition === 'behind');
+                btnLayerFront.classList.toggle('active', activeImg.layerPosition !== 'behind');
+
+                imageControlSize.style.display = "block";
+                btnRemoveImage.style.display = "inline-flex";
+            } else {
+                imageControlSize.style.display = "none";
+                btnRemoveImage.style.display = "none";
+            }
+
+            renderLayerListSelectionOnly();
+        }
+
+        function renderLayerListSelectionOnly() {
+            const rows = imageLayerList.querySelectorAll('.layer-row');
+            const orderedIds = [];
+            for (let i = imageList.length - 1; i >= 0; i--) orderedIds.push(imageList[i].id);
+            rows.forEach((row, i) => {
+                row.classList.toggle('selected', orderedIds[i] === selectedImgId);
+            });
+        }
+
+        function changeImageLayer(position) {
+            if (!selectedImgId) return;
+            const imgObj = imageList.find(img => img.id === selectedImgId);
+            if (imgObj) {
+                imgObj.layerPosition = position;
+                
+                btnLayerBehind.classList.toggle('active', position === 'behind');
+                btnLayerFront.classList.toggle('active', position === 'front');
+                
+                const wrapEl = document.getElementById('wrap_' + selectedImgId);
+                if (wrapEl) {
+                    wrapEl.style.zIndex = position === 'behind' ? "2" : "10";
+                }
+            }
+            pushHistory();
+        }
+
+        btnLayerBehind.addEventListener('click', () => changeImageLayer('behind'));
+        btnLayerFront.addEventListener('click', () => changeImageLayer('front'));
+
+        printArea.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.image-wrapper')) return;
+            selectedImgId = null;
+            selectImage(null);
+        });
+
+        imageSizeRange.addEventListener('input', (e) => {
+            if (!selectedImgId) return;
+            let widthVal = parseFloat(e.target.value);
+            imageSizeValue.innerText = widthVal + "px";
+            
+            const imgObj = imageList.find(img => img.id === selectedImgId);
+            if (imgObj) {
+                const ratio = imgObj.height / imgObj.width;
+                imgObj.width = widthVal;
+                imgObj.height = widthVal * ratio;
+                const wrapEl = document.getElementById('wrap_' + selectedImgId);
+                if (wrapEl) {
+                    wrapEl.style.width = imgObj.width + "px";
+                    wrapEl.style.height = imgObj.height + "px";
+                }
+            }
+            updateTextDisplay();
+        });
+
+        imageRotationRange.addEventListener('input', (e) => {
+            if (!selectedImgId) return;
+            let degVal = parseInt(e.target.value);
+            imageRotationValue.innerText = degVal + "°";
+            
+            const imgObj = imageList.find(img => img.id === selectedImgId);
+            if (imgObj) {
+                imgObj.angle = degVal;
+                const wrapEl = document.getElementById('wrap_' + selectedImgId);
+                if (wrapEl) wrapEl.style.transform = `rotate(${degVal}deg)`;
+            }
+        });
+
+        imageOpacityRange.addEventListener('input', (e) => {
+            if (!selectedImgId) return;
+            let opacityVal = e.target.value;
+            imageOpacityValue.innerText = opacityVal + "%";
+            
+            const imgObj = imageList.find(img => img.id === selectedImgId);
+            if (imgObj) {
+                imgObj.opacity = opacityVal;
+                const wrapEl = document.getElementById('wrap_' + selectedImgId);
+                if (wrapEl) {
+                    const img = wrapEl.querySelector('.inserted-img');
+                    if (img) img.style.opacity = opacityVal / 100;
+                }
+            }
+        });
+
+        btnRemoveImage.addEventListener('click', () => {
+            if (!selectedImgId) return;
+            removeImageById(selectedImgId);
+        });
+
+        function initDrag(e, id, wrapperElement) {
+            const imgObj = imageList.find(img => img.id === id);
+            if (!imgObj) return;
+
+            const containerRect = printArea.getBoundingClientRect();
+            const currentX = (imgObj.leftPercent / 100) * containerRect.width;
+            const currentY = (imgObj.topPercent / 100) * containerRect.height;
+            const startMouseX = e.clientX;
+            const startMouseY = e.clientY;
+
+            function onMouseMove(moveEvent) {
+                let diffX = moveEvent.clientX - startMouseX;
+                let diffY = moveEvent.clientY - startMouseY;
+
+                let newX = currentX + diffX;
+                let newY = currentY + diffY;
+
+                imgObj.leftPercent = (newX / containerRect.width) * 100;
+                imgObj.topPercent = (newY / containerRect.height) * 100;
+
+                wrapperElement.style.left = imgObj.leftPercent + "%";
+                wrapperElement.style.top = imgObj.topPercent + "%";
+            }
+
+            function onMouseUp() {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                pushHistory();
+            }
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        }
+
+        function initResizePro(e, id, handleType) {
+            const imgObj = imageList.find(img => img.id === id);
+            if (!imgObj) return;
+
+            const containerRect = printArea.getBoundingClientRect();
+            
+            const startLeft = (imgObj.leftPercent / 100) * containerRect.width;
+            const startTop = (imgObj.topPercent / 100) * containerRect.height;
+            const startWidth = imgObj.width;
+            const startHeight = imgObj.height;
+            
+            const angleRad = ((imgObj.angle || 0) * Math.PI) / 180;
+            const cos = Math.cos(angleRad);
+            const sin = Math.sin(angleRad);
+
+            const startMouseX = e.clientX;
+            const startMouseY = e.clientY;
+
+            let factorX = 0;
+            let factorY = 0;
+            if (handleType.includes('r')) factorX = 1;  
+            if (handleType.includes('l')) factorX = -1; 
+            if (handleType.includes('b')) factorY = 1;  
+            if (handleType.includes('t')) factorY = -1; 
+
+            function onMouseMove(moveEvent) {
+                const deltaX = moveEvent.clientX - startMouseX;
+                const deltaY = moveEvent.clientY - startMouseY;
+
+                const localDeltaX = deltaX * cos + deltaY * sin;
+                const localDeltaY = -deltaX * sin + deltaY * cos;
+
+                let newWidth = startWidth + localDeltaX * factorX;
+                let newHeight = startHeight + localDeltaY * factorY;
+
+                if (newWidth < 20) newWidth = 20;
+                if (newHeight < 20) newHeight = 20;
+
+                const diffW = newWidth - startWidth;
+                const diffH = newHeight - startHeight;
+
+                let pivotX = 0;
+                let pivotY = 0;
+                if (handleType.includes('l')) pivotX = 1; 
+                if (handleType.includes('t')) pivotY = 1; 
+
+                const offsetX = (diffW * pivotX * cos) - (diffH * pivotY * sin);
+                const offsetY = (diffW * pivotX * sin) + (diffH * pivotY * cos);
+
+                const currentLeft = startLeft - offsetX;
+                const currentTop = startTop - offsetY;
+
+                imgObj.width = newWidth;
+                imgObj.height = newHeight;
+                imgObj.leftPercent = (currentLeft / containerRect.width) * 100;
+                imgObj.topPercent = (currentTop / containerRect.height) * 100;
+
+                const wrapEl = document.getElementById('wrap_' + id);
+                if (wrapEl) {
+                    wrapEl.style.width = newWidth + "px";
+                    wrapEl.style.height = newHeight + "px";
+                    wrapEl.style.left = imgObj.leftPercent + "%";
+                    wrapEl.style.top = imgObj.topPercent + "%";
+                }
+
+                if (selectedImgId === id) {
+                    imageSizeRange.value = Math.round(newWidth);
+                    imageSizeValue.innerText = Math.round(newWidth) + "px";
+                }
+                // แก้ไข Bug: เดิมเรียก autoFitText ทุกครั้งไม่ว่าจะอยู่โหมดไหน ทำให้ขนาดตัวอักษร
+                // ที่ผู้ใช้ตั้งไว้เอง (Manual) ถูกคำนวณทับจนเล็กลงเวลาลากปรับขนาดรูปภาพ
+                if (sizeAuto.checked) {
+                    autoFitText(printArea, contentDiv);
+                }
+            }
+
+            function onMouseUp() {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                pushHistory();
+            }
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        }
+
+        function buildTemplateData(customName) {
+            return {
+                templateName: customName,
+                htmlText: textInput.innerHTML,
+                font: fontSelect.value,
+                sizeMode: sizeAuto.checked ? 'auto' : 'manual',
+                manualSize: sizeRange.value,
+                borderStyle: borderStyleSelect.value,
+                borderWidth: borderWidthSelect.value,
+                borderColor: borderColorInput.value,
+                borderRadius: borderRadiusRange.value,
+                padding: paddingRange.value,
+                alignmentX: currentAlignmentX,
+                alignmentY: currentAlignmentY,
+                imageList: imageList
+            };
+        }
+
+        btnExportFile.addEventListener('click', () => {
+            let customName = templateNameInput.value.trim();
+            if (!customName) {
+                alert('กรุณาตั้งชื่อรูปแบบก่อนทำการบันทึกครับ!');
+                templateNameInput.focus();
+                return;
+            }
+
+            const templateData = buildTemplateData(customName);
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(templateData));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `${customName}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        });
+
+        // --- เทมเพลตด่วน: บันทึกลง localStorage ของเบราว์เซอร์นี้ ---
+        function getLocalTemplates() {
+            try { return JSON.parse(localStorage.getItem('labelLocalTemplates') || '{}'); }
+            catch (err) { return {}; }
+        }
+        function setLocalTemplates(obj) {
+            try { localStorage.setItem('labelLocalTemplates', JSON.stringify(obj)); } catch (err) {
+                alert('บันทึกไม่สำเร็จ อาจเป็นเพราะพื้นที่จัดเก็บของเบราว์เซอร์เต็ม (รูปภาพเยอะเกินไป)');
+            }
+        }
+        function renderLocalTemplateList() {
+            const templates = getLocalTemplates();
+            const names = Object.keys(templates);
+            localTemplateSelect.innerHTML = "";
+            if (!names.length) {
+                localTemplateSelect.innerHTML = '<option value="">-- ยังไม่มีเทมเพลตด่วน --</option>';
+                return;
+            }
+            names.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.innerText = name;
+                localTemplateSelect.appendChild(opt);
+            });
+        }
+        renderLocalTemplateList();
+
+        btnSaveLocal.addEventListener('click', () => {
+            let customName = templateNameInput.value.trim();
+            if (!customName) {
+                alert('กรุณาตั้งชื่อรูปแบบก่อนทำการบันทึกครับ!');
+                templateNameInput.focus();
+                return;
+            }
+            const templates = getLocalTemplates();
+            templates[customName] = buildTemplateData(customName);
+            setLocalTemplates(templates);
+            renderLocalTemplateList();
+            localTemplateSelect.value = customName;
+        });
+
+        btnLoadLocal.addEventListener('click', () => {
+            const name = localTemplateSelect.value;
+            if (!name) { alert('กรุณาเลือกเทมเพลตด่วนก่อนครับ'); return; }
+            const templates = getLocalTemplates();
+            if (!templates[name]) return;
+            pendingTemplateData = templates[name];
+            showFilePreview(pendingTemplateData);
+        });
+
+        btnDeleteLocal.addEventListener('click', () => {
+            const name = localTemplateSelect.value;
+            if (!name) return;
+            if (!confirm(`ลบเทมเพลตด่วน "${name}" ใช่หรือไม่?`)) return;
+            const templates = getLocalTemplates();
+            delete templates[name];
+            setLocalTemplates(templates);
+            renderLocalTemplateList();
+        });
+
+        // --- พิมพ์หลายใบ ---
+        function printLabel() {
+            const qty = Math.max(1, Math.min(50, parseInt(printQtyInput.value) || 1));
+            if (qty <= 1) {
+                document.body.classList.remove('is-multi-print');
+                window.print();
+                return;
+            }
+            printMultiWrap.innerHTML = "";
+            const sourceContainer = document.querySelector('.preview-sidebar .preview-container');
+            for (let i = 0; i < qty; i++) {
+                printMultiWrap.appendChild(sourceContainer.cloneNode(true));
+            }
+            document.body.classList.add('is-multi-print');
+            window.print();
+        }
+        window.addEventListener('afterprint', () => {
+            document.body.classList.remove('is-multi-print');
+            printMultiWrap.innerHTML = "";
+        });
+
+        btnTriggerLoad.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    pendingTemplateData = JSON.parse(event.target.result);
+                    showFilePreview(pendingTemplateData);
+                } catch (err) {
+                    alert('ไฟล์ไม่ถูกต้อง หรือรูปแบบไฟล์เสียหายครับ');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        function showFilePreview(data) {
+            modalTextInsideContent.innerHTML = data.htmlText || 'กรุณาพิมพ์ข้อความ';
+            modalContent.style.fontFamily = data.font;
+            modalPrintArea.style.borderStyle = data.borderStyle;
+            modalPrintArea.style.borderWidth = data.borderWidth;
+            modalPrintArea.style.borderColor = data.borderColor || '#000000';
+            modalPrintArea.style.borderRadius = (data.borderRadius || 0) + 'px';
+            modalPrintArea.style.padding = data.padding + 'mm';
+            
+            modalImagesLayer.innerHTML = "";
+            const fileImgList = data.imageList || [];
+
+            fileImgList.forEach(imgObj => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'image-wrapper';
+                wrapper.style.width = imgObj.width + 'px';
+                wrapper.style.height = imgObj.height + 'px';
+                wrapper.style.left = imgObj.leftPercent + '%';
+                wrapper.style.top = imgObj.topPercent + '%';
+                
+                if (imgObj.layerPosition === 'behind') {
+                    wrapper.style.zIndex = "2";
+                } else {
+                    wrapper.style.zIndex = "10";
+                }
+                
+                const angle = imgObj.angle || 0;
+                wrapper.style.transform = `rotate(${angle}deg)`;
+
+                const imgEl = document.createElement('img');
+                imgEl.src = imgObj.base64;
+                imgEl.className = 'inserted-img';
+                imgEl.style.opacity = imgObj.opacity / 100;
+                
+                wrapper.appendChild(imgEl);
+                modalImagesLayer.appendChild(wrapper);
+            });
+
+            const testX = data.alignmentX || 'center';
+            const testY = data.alignmentY || 'center';
+            const flexX = { left: 'flex-start', center: 'center', right: 'flex-end' };
+            const flexY = { top: 'flex-start', middle: 'center', bottom: 'flex-end' };
+            
+            modalContent.style.textAlign = testX;
+            modalContent.style.justifyContent = flexY[testY];
+            modalContent.style.alignItems = flexX[testX];
+
+            if (data.sizeMode === 'auto') {
+                setTimeout(() => { autoFitText(modalPrintArea, modalContent); }, 60);
+            } else {
+                modalContent.style.fontSize = data.manualSize + 'px';
+            }
+
+            previewModal.classList.add('active');
+        }
+
+        function confirmLoadTemplate() {
+            if (!pendingTemplateData) return;
+
+            templateNameInput.value = pendingTemplateData.templateName || '';
+            textInput.innerHTML = pendingTemplateData.htmlText || '<br>';
+            fontSelect.value = pendingTemplateData.font || "'Itim', cursive";
+            
+            if (pendingTemplateData.sizeMode === 'manual') {
+                sizeManual.checked = true;
+                sizeAuto.checked = false;
+                sizeRange.value = pendingTemplateData.manualSize || 30;
+            } else {
+                sizeAuto.checked = true;
+                sizeManual.checked = false;
+            }
+
+            borderStyleSelect.value = pendingTemplateData.borderStyle || 'solid';
+            borderWidthSelect.value = pendingTemplateData.borderWidth || '4px';
+            borderColorInput.value = pendingTemplateData.borderColor || '#000000';
+            borderRadiusRange.value = pendingTemplateData.borderRadius || 0;
+            paddingRange.value = pendingTemplateData.padding || 12;
+
+            imageList = pendingTemplateData.imageList ? [...pendingTemplateData.imageList] : [];
+
+            selectedImgId = null;
+            renderImages();
+            selectImage(null);
+
+            setAlignmentX(pendingTemplateData.alignmentX || 'center');
+            setAlignmentY(pendingTemplateData.alignmentY || 'center');
+            
+            updateBorderSettings();
+            updatePaddingSettings();
+
+            closePreviewModal();
+            pushHistory();
+        }
+
+        function closePreviewModal() {
+            previewModal.classList.remove('active');
+            fileInput.value = "";
+            pendingTemplateData = null;
+        }
+
+        btnModalConfirm.addEventListener('click', confirmLoadTemplate);
+        btnModalCancel.addEventListener('click', closePreviewModal);
+
+        btnClearText.addEventListener('click', () => {
+            if(confirm('คุณต้องการล้างข้อความทั้งหมดใช่หรือไม่?')) {
+                textInput.innerHTML = '<br>';
+                updateTextDisplay();
+                textInput.focus();
+            }
+        });
+
+        btnBold.addEventListener('mousedown', (e) => { e.preventDefault(); formatText('bold'); });
+        btnItalic.addEventListener('mousedown', (e) => { e.preventDefault(); formatText('italic'); });
+        btnUnderline.addEventListener('mousedown', (e) => { e.preventDefault(); formatText('underline'); });
+
+        btnAlignLeft.addEventListener('click', () => { setAlignmentX('left'); updateTextDisplay(); });
+        btnAlignCenter.addEventListener('click', () => { setAlignmentX('center'); updateTextDisplay(); });
+        btnAlignRight.addEventListener('click', () => { setAlignmentX('right'); updateTextDisplay(); });
+
+        btnAlignTop.addEventListener('click', () => { setAlignmentY('top'); updateTextDisplay(); });
+        btnAlignMiddle.addEventListener('click', () => { setAlignmentY('middle'); updateTextDisplay(); });
+        btnAlignBottom.addEventListener('click', () => { setAlignmentY('bottom'); updateTextDisplay(); });
+
+        textInput.addEventListener('input', updateTextDisplay);
+        textInput.addEventListener('keyup', updateToolbarActiveStates);
+        textInput.addEventListener('mouseup', updateToolbarActiveStates);
+        
+        textInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                document.execCommand('insertLineBreak', false, null);
+                e.preventDefault();
+            }
+            if (e.ctrlKey && (e.key === 'b' || e.key === 'B' || e.key === 'i' || e.key === 'I' || e.key === 'u' || e.key === 'U')) {
+                setTimeout(updateToolbarActiveStates, 10);
+            }
+        });
+
+        textInput.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const text = e.clipboardData.getData('text/plain');
+            document.execCommand('insertText', false, text);
+        });
+
+        fontSelect.addEventListener('change', updateTextDisplay);
+        sizeAuto.addEventListener('change', updateTextDisplay);
+        sizeManual.addEventListener('change', updateTextDisplay);
+        sizeRange.addEventListener('input', updateTextDisplay);
+
+        borderStyleSelect.addEventListener('change', updateBorderSettings);
+        borderWidthSelect.addEventListener('change', updateBorderSettings);
+        borderColorInput.addEventListener('input', updateBorderSettings);
+        borderRadiusRange.addEventListener('input', updateBorderSettings);
+        paddingRange.addEventListener('input', updatePaddingSettings);
+
+        setAlignmentX('center');
+        setAlignmentY('center');
+        updateBorderSettings();
+        updatePaddingSettings(); 
+
+        // --- Day / Night Mode ---
+        const btnTheme = document.getElementById('btnTheme');
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            btnTheme.innerText = theme === 'dark' ? '☀️' : '🌙';
+            try { localStorage.setItem('labelAppTheme', theme); } catch (err) {}
+        }
+        let savedTheme = 'light';
+        try { savedTheme = localStorage.getItem('labelAppTheme') || 'light'; } catch (err) {}
+        applyTheme(savedTheme);
+        btnTheme.addEventListener('click', () => {
+            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            applyTheme(next);
+        });
+
+        // --- Help Modal ---
+        const helpModal = document.getElementById('helpModal');
+        document.getElementById('btnHelp').addEventListener('click', () => helpModal.classList.add('active'));
+        document.getElementById('btnHelpClose').addEventListener('click', () => helpModal.classList.remove('active'));
+        helpModal.addEventListener('click', (e) => { if (e.target === helpModal) helpModal.classList.remove('active'); });
+
+        // --- Edit Lock (PIN) ---
+        // หมายเหตุ: กันแก้ไขโดยไม่ตั้งใจเท่านั้น ไม่ใช่การเข้ารหัสความปลอดภัยระดับสูง
+        const btnLock = document.getElementById('btnLock');
+        const lockFieldset = document.getElementById('lockFieldset');
+        const lockNotice = document.getElementById('lockNotice');
+        const lockModal = document.getElementById('lockModal');
+        const lockModalTitle = document.getElementById('lockModalTitle');
+        const lockModalDesc = document.getElementById('lockModalDesc');
+        const lockPinInput = document.getElementById('lockPinInput');
+        const lockPinError = document.getElementById('lockPinError');
+        const btnLockModalConfirm = document.getElementById('btnLockModalConfirm');
+        const btnLockModalCancel = document.getElementById('btnLockModalCancel');
+        const btnChangePin = document.getElementById('btnChangePin');
+
+        function simpleObfuscate(str) {
+            // ไม่ใช่การเข้ารหัสจริง แค่กันสายตาเห็นรหัสตรงๆ ใน localStorage
+            try { return btoa(unescape(encodeURIComponent(str))); } catch (err) { return str; }
+        }
+        function simpleDeobfuscate(str) {
+            try { return decodeURIComponent(escape(atob(str))); } catch (err) { return ''; }
+        }
+
+        let lockPinStore = null;
+        try { lockPinStore = localStorage.getItem('labelLockPin'); } catch (err) {}
+        let isLocked = false;
+        try { isLocked = localStorage.getItem('labelIsLocked') === '1' && !!lockPinStore; } catch (err) {}
+
+        let lockModalMode = 'set'; // 'set' | 'unlock' | 'change-verify' | 'change-new'
+
+        function updateChangePinVisibility() {
+            btnChangePin.style.display = (!isLocked && lockPinStore) ? 'flex' : 'none';
+        }
+
+        function setLockedUI(locked) {
+            isLocked = locked;
+            lockFieldset.disabled = locked;
+            textInput.contentEditable = locked ? "false" : "true";
+            lockNotice.style.display = locked ? "block" : "none";
+            btnLock.innerText = locked ? '🔒' : '🔓';
+            btnLock.classList.toggle('locked', locked);
+            try { localStorage.setItem('labelIsLocked', locked ? '1' : '0'); } catch (err) {}
+            updateChangePinVisibility();
+        }
+        // ใช้ค่าที่โหลดมาตอนเริ่มต้น (ไม่ต้องรอ interaction)
+        lockFieldset.disabled = isLocked;
+        textInput.contentEditable = isLocked ? "false" : "true";
+        lockNotice.style.display = isLocked ? "block" : "none";
+        btnLock.innerText = isLocked ? '🔒' : '🔓';
+        btnLock.classList.toggle('locked', isLocked);
+        updateChangePinVisibility();
+
+        function openLockModal(mode) {
+            lockModalMode = mode;
+            lockPinInput.value = "";
+            lockPinError.style.display = "none";
+            if (mode === 'set') {
+                lockModalTitle.innerText = '🔒 ตั้งรหัสล็อก';
+                lockModalDesc.innerText = 'ตั้งรหัส 4 หลักขึ้นไปเพื่อป้องกันการแก้ไขโดยไม่ตั้งใจ';
+            } else if (mode === 'unlock') {
+                lockModalTitle.innerText = '🔓 กรอกรหัสเพื่อปลดล็อก';
+                lockModalDesc.innerText = 'กรอกรหัสที่เคยตั้งไว้เพื่อแก้ไขการตั้งค่าอีกครั้ง';
+            } else if (mode === 'change-verify') {
+                lockModalTitle.innerText = '🔑 ยืนยันรหัสเดิม';
+                lockModalDesc.innerText = 'กรอกรหัสเดิมก่อนตั้งรหัสใหม่';
+            } else if (mode === 'change-new') {
+                lockModalTitle.innerText = '🔑 ตั้งรหัสใหม่';
+                lockModalDesc.innerText = 'กรอกรหัสใหม่ (4 หลักขึ้นไป)';
+            }
+            lockModal.classList.add('active');
+            setTimeout(() => lockPinInput.focus(), 50);
+        }
+        function closeLockModal() {
+            lockModal.classList.remove('active');
+        }
+
+        btnLock.addEventListener('click', () => {
+            if (isLocked) {
+                openLockModal('unlock');
+            } else if (lockPinStore) {
+                // เคยตั้งรหัสไว้แล้วแต่ตอนนี้ปลดล็อกอยู่ -> ล็อกได้ทันทีโดยไม่ต้องตั้งรหัสใหม่
+                setLockedUI(true);
+            } else {
+                openLockModal('set');
+            }
+        });
+
+        btnChangePin.addEventListener('click', () => openLockModal('change-verify'));
+
+        btnLockModalConfirm.addEventListener('click', () => {
+            const val = lockPinInput.value.trim();
+            if (lockModalMode === 'set') {
+                if (val.length < 4) {
+                    lockPinError.innerText = 'กรุณาตั้งรหัสอย่างน้อย 4 หลัก';
+                    lockPinError.style.display = 'block';
+                    return;
+                }
+                lockPinStore = simpleObfuscate(val);
+                try { localStorage.setItem('labelLockPin', lockPinStore); } catch (err) {}
+                setLockedUI(true);
+                closeLockModal();
+            } else if (lockModalMode === 'unlock') {
+                if (simpleDeobfuscate(lockPinStore) === val) {
+                    setLockedUI(false);
+                    closeLockModal();
+                } else {
+                    lockPinError.innerText = 'รหัสไม่ถูกต้อง ลองอีกครั้ง';
+                    lockPinError.style.display = 'block';
+                }
+            } else if (lockModalMode === 'change-verify') {
+                if (simpleDeobfuscate(lockPinStore) === val) {
+                    openLockModal('change-new');
+                } else {
+                    lockPinError.innerText = 'รหัสเดิมไม่ถูกต้อง ลองอีกครั้ง';
+                    lockPinError.style.display = 'block';
+                }
+            } else if (lockModalMode === 'change-new') {
+                if (val.length < 4) {
+                    lockPinError.innerText = 'กรุณาตั้งรหัสอย่างน้อย 4 หลัก';
+                    lockPinError.style.display = 'block';
+                    return;
+                }
+                lockPinStore = simpleObfuscate(val);
+                try { localStorage.setItem('labelLockPin', lockPinStore); } catch (err) {}
+                closeLockModal();
+                alert('เปลี่ยนรหัสเรียบร้อยแล้วครับ');
+            }
+        });
+        btnLockModalCancel.addEventListener('click', closeLockModal);
+        lockPinInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') btnLockModalConfirm.click(); });
+        lockModal.addEventListener('click', (e) => { if (e.target === lockModal) closeLockModal(); });
+
+        // --- Undo / Redo ---
+        const btnUndo = document.getElementById('btnUndo');
+        const btnRedo = document.getElementById('btnRedo');
+        const HISTORY_LIMIT = 50;
+        let historyStack = [];
+        let historyIndex = -1;
+        let isRestoringHistory = false;
+        let textHistoryTimer = null;
+
+        function snapshotState() {
+            return JSON.parse(JSON.stringify(buildTemplateData(templateNameInput.value)));
+        }
+
+        function updateHistoryButtons() {
+            btnUndo.disabled = historyIndex <= 0;
+            btnRedo.disabled = historyIndex >= historyStack.length - 1;
+        }
+
+        function pushHistory() {
+            if (isRestoringHistory) return;
+            const snap = snapshotState();
+            // ถ้าเหมือนสถานะล่าสุดเป๊ะ ไม่ต้องเพิ่ม (กันประวัติซ้ำ)
+            if (historyIndex >= 0 && JSON.stringify(historyStack[historyIndex]) === JSON.stringify(snap)) {
+                return;
+            }
+            historyStack = historyStack.slice(0, historyIndex + 1);
+            historyStack.push(snap);
+            if (historyStack.length > HISTORY_LIMIT) historyStack.shift();
+            historyIndex = historyStack.length - 1;
+            updateHistoryButtons();
+        }
+
+        function applyHistorySnapshot(data) {
+            isRestoringHistory = true;
+            textInput.innerHTML = data.htmlText || '<br>';
+            fontSelect.value = data.font || "'Itim', cursive";
+
+            if (data.sizeMode === 'manual') {
+                sizeManual.checked = true; sizeAuto.checked = false;
+                sizeRange.value = data.manualSize || 30;
+            } else {
+                sizeAuto.checked = true; sizeManual.checked = false;
+            }
+
+            borderStyleSelect.value = data.borderStyle || 'solid';
+            borderWidthSelect.value = data.borderWidth || '4px';
+            borderColorInput.value = data.borderColor || '#000000';
+            borderRadiusRange.value = data.borderRadius || 0;
+            paddingRange.value = data.padding || 12;
+
+            imageList = data.imageList ? JSON.parse(JSON.stringify(data.imageList)) : [];
+            selectedImgId = null;
+            renderImages();
+            selectImage(null);
+
+            setAlignmentX(data.alignmentX || 'center');
+            setAlignmentY(data.alignmentY || 'center');
+
+            updateBorderSettings();
+            updatePaddingSettings();
+            updateTextDisplay();
+
+            isRestoringHistory = false;
+        }
+
+        function undoHistory() {
+            if (historyIndex <= 0) return;
+            historyIndex -= 1;
+            applyHistorySnapshot(historyStack[historyIndex]);
+            updateHistoryButtons();
+        }
+        function redoHistory() {
+            if (historyIndex >= historyStack.length - 1) return;
+            historyIndex += 1;
+            applyHistorySnapshot(historyStack[historyIndex]);
+            updateHistoryButtons();
+        }
+
+        btnUndo.addEventListener('click', undoHistory);
+        btnRedo.addEventListener('click', redoHistory);
+        document.addEventListener('keydown', (e) => {
+            if (!e.ctrlKey && !e.metaKey) return;
+            if (e.key === 'z' || e.key === 'Z') {
+                if (e.shiftKey) { e.preventDefault(); redoHistory(); }
+                else { e.preventDefault(); undoHistory(); }
+            } else if (e.key === 'y' || e.key === 'Y') {
+                e.preventDefault(); redoHistory();
+            }
+        });
+
+        // เก็บประวัติเมื่อมีการเปลี่ยนแปลงจริง: การพิมพ์ข้อความ (หน่วงเวลาไม่ให้บันทึกทุกตัวอักษร),
+        // การเปลี่ยนค่าจาก select/range/color (change = ปล่อยเมาส์/ปิดตัวเลือก), และปุ่มจัดรูปแบบต่างๆ
+        textInput.addEventListener('input', () => {
+            clearTimeout(textHistoryTimer);
+            textHistoryTimer = setTimeout(pushHistory, 700);
+        });
+        [fontSelect, sizeAuto, sizeManual, sizeRange, borderStyleSelect, borderWidthSelect,
+         borderColorInput, borderRadiusRange, paddingRange, imageSizeRange, imageRotationRange,
+         imageOpacityRange].forEach(el => el.addEventListener('change', () => pushHistory()));
+
+        const HISTORY_CLICK_IDS = ['btnBold', 'btnItalic', 'btnUnderline', 'btnClearText',
+            'btnAlignLeft', 'btnAlignCenter', 'btnAlignRight', 'btnAlignTop', 'btnAlignMiddle', 'btnAlignBottom'];
+        lockFieldset.addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (btn && HISTORY_CLICK_IDS.includes(btn.id)) pushHistory();
+        });
+
+        // บันทึกสถานะเริ่มต้นไว้เป็นจุดตั้งต้นของ Undo
+        pushHistory();
+    </script>
+
+</body>
+</html>
